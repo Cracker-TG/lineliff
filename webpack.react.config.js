@@ -1,7 +1,8 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-module.exports = () => {
+module.exports = (env, argv) => {
+  console.log(argv.mode);
   return {
     resolve: {
       extensions: [".jsx", ".js"],
@@ -11,7 +12,10 @@ module.exports = () => {
     entry: {
       main: path.resolve(__dirname, "./src/app.jsx"),
     },
-    devtool: "source-map",
+    devtool:
+      argv.mode === "production"
+        ? "eval-cheap-module-source-map"
+        : "source-map",
     module: {
       rules: [
         {
@@ -46,12 +50,12 @@ module.exports = () => {
       publicPath: "/",
     },
     output: {
-      path: path.resolve(__dirname, "dist"),
-      filename: "js/[name].js",
-      publicPath: "./",
+      path: path.join(__dirname, "/dist"),
+      filename: "index.bundle.js",
+      publicPath: "/lineliff",
     },
     plugins: [
-      new HtmlWebpackPlugin({ template: "./index.html", title: "FLEXQ" }),
+      new HtmlWebpackPlugin({ template: "./index.html", title: "LIFF" }),
     ],
   };
 };
