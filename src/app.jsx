@@ -11,10 +11,9 @@ const App = () => {
   const [decode, setDecode] = useState({});
 
   useEffect(async () => {
-    liff
+    await liff
       .init({ liffId: process.env.LIFF_ID })
       .catch((err) => alert(`init ${err.message}`));
-    console.log(liff.isInClient().toString());
     if (liff.isInClient()) {
       await getUserProfile();
       await getDecodedIDToken();
