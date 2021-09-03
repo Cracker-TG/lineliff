@@ -9,35 +9,37 @@ const mainElement = document.getElementById("root");
 const App = () => {
   const [login, setLogin] = useState(false);
   const [profile, setProfile] = useState({});
+  const [decode, setDecode] = useState({});
 
-  const myLiffId = "1656385430-j4VQZ5wo";
   useEffect(async () => {
-    await liff.init({ liffId: myLiffId }).catch((err) => alert(err.message));
+    await liff
+      .init({ liffId: process.env.LIFF_ID })
+      .catch((err) => alert(`init ${err.message}`));
+
     if (liff.isInClient()) {
-      setLogin(true);
-      getUserProfile();
+      if (liff.isLoggedIn()) {
+        await getUserProfile();
+        await getDecodedIDToken();
+        setLogin(true);
+      }
     } else {
       if (liff.isLoggedIn()) {
+        await getUserProfile();
+        await getDecodedIDToken();
         setLogin(true);
-        getUserProfile();
-        getDecodedIDToken();
-        //document.getElementById("btnLogIn").style.display = "none"
-        //document.getElementById("btnLogOut").style.display = "block"
-      } else {
-        //document.getElementById("btnLogIn").style.display = "block"
-        //document.getElementById("btnLogOut").style.display = "none"
       }
     }
-  }, []);
+  }, [login]);
 
   const getDecodedIDToken = async () => {
     const decode = await liff.getDecodedIDToken();
-    console.log({ decode });
+    setDecode(decode);
   };
   const getUserProfile = async () => {
-    const profile = await liff.getProfile().catch((err) => alert(err.message));
+    const profile = await liff
+      .getProfile()
+      .catch((err) => alert(`get profile ${err.message}`));
     setProfile(profile);
-    console.log({ profile });
   };
 
   function logOut() {
@@ -51,16 +53,28 @@ const App = () => {
   return (
     <Container className="d-flex justify-content-center mt-10">
       <Row style={{ margin: 20 }}>
-        <Col className="">
-          <Button variant="primary" onClick={() => logIn()} disabled={login}>
-            Login
-          </Button>
-        </Col>
-        <Col>
-          <Button variant="danger" onClick={() => logOut()} disabled={!login}>
-            Logout
-          </Button>
-        </Col>
+        {!liff.isInClient() && (
+          <>
+            <Col className="">
+              <Button
+                variant="primary"
+                onClick={() => logIn()}
+                disabled={login}
+              >
+                Login
+              </Button>
+            </Col>
+            <Col>
+              <Button
+                variant="danger"
+                onClick={() => logOut()}
+                disabled={!login}
+              >
+                Logout
+              </Button>
+            </Col>
+          </>
+        )}
       </Row>
       <Row style={{ margin: 20 }}>
         {login ? (
@@ -72,12 +86,16 @@ const App = () => {
                 <Card.Subtitle className="mb-2 text-muted">
                   userId: {profile.userId}
                 </Card.Subtitle>
-                <Card.Text>Status: {profile.statusMessage}</Card.Text>
+                <Card.Text>
+                  Status: {profile.statusMessage}
+                  <hr />
+                  Email: {decode.email}
+                </Card.Text>
               </Card.Body>
             </Card>
           </Col>
         ) : (
-          <h1>Plase Login</h1>
+          !liff.isInClient() && <h1>Plase Login</h1>
         )}
       </Row>
     </Container>
