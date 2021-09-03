@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactDom from "react-dom";
 import liff from "@line/liff";
@@ -10,16 +10,15 @@ const App = () => {
   const [profile, setProfile] = useState({});
   const [decode, setDecode] = useState({});
 
-  useLayoutEffect(() => {
+  liff.init({ liffId: process.env.LIFF_ID });
+
+  useEffect(() => {
     liff.ready.then(() => {
       if (liff.isInClient()) {
         if (liff.isLoggedIn()) {
           getUserProfile();
           getDecodedIDToken();
           setLogin(true);
-        }
-        if (liff.getOS() === "android") {
-          logIn();
         }
       } else {
         if (liff.isLoggedIn()) {
@@ -29,10 +28,6 @@ const App = () => {
         }
       }
     });
-
-    liff.init({ liffId: process.env.LIFF_ID }, (suc) =>
-      console.log({ suc }, (err) => console.log({ err }))
-    );
   }, [login]);
 
   const getDecodedIDToken = async () => {
