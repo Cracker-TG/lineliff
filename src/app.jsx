@@ -11,20 +11,23 @@ const App = () => {
   const [decode, setDecode] = useState({});
 
   useEffect(async () => {
+    liff.ready.then(() => {
+      if (liff.isInClient()) {
+        getUserProfile();
+        getDecodedIDToken();
+        setLogin(true);
+      } else {
+        if (liff.isLoggedIn()) {
+          getUserProfile();
+          getDecodedIDToken();
+          setLogin(true);
+        }
+      }
+    });
+
     await liff
       .init({ liffId: process.env.LIFF_ID })
       .catch((err) => alert(`init ${err.message}`));
-    if (liff.isInClient()) {
-      await getUserProfile();
-      await getDecodedIDToken();
-      setLogin(true);
-    } else {
-      if (liff.isLoggedIn()) {
-        await getUserProfile();
-        await getDecodedIDToken();
-        setLogin(true);
-      }
-    }
   }, [login]);
 
   const getDecodedIDToken = async () => {
