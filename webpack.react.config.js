@@ -52,8 +52,8 @@ module.exports = (env, argv) => {
     },
     output: {
       path: path.join(__dirname, "/dist"),
-      filename: "index.bundle.js",
-      publicPath: "/lineliff",
+      filename: "index.[contenthash].js",
+      publicPath: "/",
     },
     plugins: [
       new HtmlWebpackPlugin({ template: "./index.html", title: "LIFF" }),

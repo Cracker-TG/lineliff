@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactDom from "react-dom";
 import liff from "@line/liff";
@@ -10,12 +10,17 @@ const App = () => {
   const [profile, setProfile] = useState({});
   const [decode, setDecode] = useState({});
 
-  useEffect(async () => {
+  useLayoutEffect(() => {
     liff.ready.then(() => {
       if (liff.isInClient()) {
-        getUserProfile();
-        getDecodedIDToken();
-        setLogin(true);
+        if (liff.isLoggedIn()) {
+          getUserProfile();
+          getDecodedIDToken();
+          setLogin(true);
+        }
+        if (liff.getOS() === "android") {
+          logIn();
+        }
       } else {
         if (liff.isLoggedIn()) {
           getUserProfile();
@@ -25,9 +30,9 @@ const App = () => {
       }
     });
 
-    await liff
-      .init({ liffId: process.env.LIFF_ID })
-      .catch((err) => alert(`init ${err.message}`));
+    liff.init({ liffId: process.env.LIFF_ID }, (suc) =>
+      console.log({ suc }, (err) => console.log({ err }))
+    );
   }, [login]);
 
   const getDecodedIDToken = async () => {
@@ -41,13 +46,14 @@ const App = () => {
     setProfile(profile);
   };
 
-  function logOut() {
+  const logOut = () => {
     liff.logout();
     window.location.reload();
-  }
-  function logIn() {
+  };
+
+  const logIn = () => {
     liff.login({ redirectUri: window.location.href });
-  }
+  };
 
   return (
     <Container className="d-flex justify-content-center mt-10">
