@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ReactDom from "react-dom";
 import liff from "@line/liff";
 import { Button, Col, Container, Row, Card } from "react-bootstrap";
-
 const mainElement = document.getElementById("root");
 
 const App = () => {
@@ -12,16 +11,14 @@ const App = () => {
   const [decode, setDecode] = useState({});
 
   useEffect(async () => {
-    await liff
+    liff
       .init({ liffId: process.env.LIFF_ID })
       .catch((err) => alert(`init ${err.message}`));
-
+    console.log(liff.isInClient().toString());
     if (liff.isInClient()) {
-      if (liff.isLoggedIn()) {
-        await getUserProfile();
-        await getDecodedIDToken();
-        setLogin(true);
-      }
+      await getUserProfile();
+      await getDecodedIDToken();
+      setLogin(true);
     } else {
       if (liff.isLoggedIn()) {
         await getUserProfile();
@@ -52,8 +49,8 @@ const App = () => {
 
   return (
     <Container className="d-flex justify-content-center mt-10">
-      <Row style={{ margin: 20 }}>
-        {!liff.isInClient() && (
+      {!liff.isInClient() && (
+        <Row style={{ margin: 20 }}>
           <>
             <Col className="">
               <Button
@@ -74,9 +71,9 @@ const App = () => {
               </Button>
             </Col>
           </>
-        )}
-      </Row>
-      <Row style={{ margin: 20 }}>
+        </Row>
+      )}
+      <Row style={{ marginTop: 20 }}>
         {login ? (
           <Col md={12} className="d-flex justify-content-center">
             <Card style={{ width: "18rem" }}>
